@@ -1,0 +1,58 @@
+name: CI/CD Pipeline Demo # Nombre visible del flujo en GitHub Actions
+---------------------------------------------------------
+Secciones "on" definen CUÁNDO se ejecutará el pipeline.
+En este caso: cada vez que se hace push o pull request
+a la rama principal del proyecto.
+---------------------------------------------------------
+on: push: branches: - main pull_request: branches: - main
+---------------------------------------------------------
+Definición de los "jobs" o etapas del pipeline.
+En este caso, hay dos: build-and-test y deploy.
+---------------------------------------------------------
+jobs:
+---------- PRIMER JOB: CONSTRUCCIÓN Y PRUEBAS ----------
+build-and-test: name: Build and Test Application runs-on: ubuntu-latest # Entorno del sistema operativo
+steps:
+  # 1️⃣ Descarga el código del repositorio
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  # 2️⃣ Configura Node.js versión 18
+  - name: Set up Node.js
+    uses: actions/setup-node@v3
+    with:
+      node-version: '18'
+
+  # 3️⃣ Instala las dependencias definidas en package.json
+  - name: Install dependencies
+    run: npm install
+
+  # 4️⃣ Ejecuta las pruebas automatizadas
+  - name: Run tests
+    run: npm test
+ 
+---------- SEGUNDO JOB: DESPLIEGUE SIMULADO ----------
+deploy: name: Deploy Application runs-on: ubuntu-latest needs: build-and-test # Se ejecuta solo si el job anterior fue exitoso if: success()
+steps:
+  # 1️⃣ Descarga nuevamente el repositorio (buenas prácticas)
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  # 2️⃣ Simula el despliegue copiando archivos a una carpeta temporal
+  - name: Simulate deployment
+    run: |
+      echo "Starting deployment..."
+      mkdir -p deploy
+      cp -r * deploy/
+      echo "Application deployed successfully!"
+      echo "----------------------------------"
+      echo "Timestamp: $(date)"
+      echo "Branch: $GITHUB_REF"
+      echo "Commit: $GITHUB_SHA"
+      echo "----------------------------------"
+
+  # 3️⃣ Simula el envío de una notificación de despliegue
+  - name: Notify team (simulated)
+    run: |
+      echo "Sending deployment notification..."
+      echo "✅ Deployment completed successfully!"
